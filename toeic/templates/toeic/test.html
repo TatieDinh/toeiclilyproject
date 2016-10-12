@@ -1,0 +1,33 @@
+{% extends "toeic/base.html" %}
+
+{% block content %}
+<div class ="container">
+<div class="row">
+    <div class="box">  
+        <div class="col-lg-12">
+            <hr>
+            <h2 class="intro-text text-center"><a href="{% url 'toeic:tests' %}">Test</a>: 
+                <strong>{{test}}</strong>
+            </h2>
+            <hr>
+        </div>
+        <div class="col-lg-12">
+            <form method="Post"/>
+			<table class="table"> 
+				{% for question, form in questions.iteritems %}
+					<tr>
+						<td style ="padding-right:40px;">{{ question.text|linebreaks }}</td>
+						<td style ="">{% csrf_token %} {{ form.as_p }}  </td>
+					</tr> 
+				{% empty %} 
+					<tr>No questions have been added yet.</tr> 
+				{% endfor %}
+			</table>
+			<div class ="text-center"><button class="btn btn-danger" name="submit">Submit</button></div>
+			</form>			
+        </div>
+   </div>
+</div>
+</div>
+
+{% endblock content %}
