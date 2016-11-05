@@ -9,14 +9,81 @@
 
     	{% load static %}
 
-    	<link type="text/css" rel="stylesheet" href="{% static 'toeic/bootstrap.min.css' %}" />
+		<link type="text/css" rel="stylesheet" href="{% static 'toeic/bootstrap.min.css' %}" />
 		<link type="text/css" rel="stylesheet" href="{% static 'toeic/style.css' %}" />
-    		
+
+		<script type="text/javascript" src="{% static 'toeic/recorder.js' %}"></script>
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 		<link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&subset=latin,vietnamese" rel="stylesheet" type="text/css">
     	<link href="https://fonts.googleapis.com/css?family=Josefin+Slab:100,300,400,600,700,100italic,300italic,400italic,600italic,700italic&subset=latin,vietnamese" rel="stylesheet" type="text/css">
+        <style>
+            .roundbutton{
+                width:25px;
+                height:25px;
+                line-height:25px;
+                border: none;
+                border-radius: 50%;
+                /*color:#f5f5f;*/
+                text-align:center;
+                text-decoration:none;
+                /*background: #F6D5D5;*/
+                /*box-shadow: 0 0 3px gray;*/
+                font-size:10px;
+            }
+            #changebackground{
+                display:block;
+                width:50px;
+                height:50px;
+                line-height:50px;
+                border: none;
+                border-radius: 50%;
+                color:#f5f5f5;
+                text-align:center;
+                text-decoration:none;
+                background: #F6D5D5;
+                box-shadow: 0 0 3px gray;
+                font-size:20px;
+                font-weight:bold;
+                float:right;
+                margin:10px;
+            }
+            button:focus {outline:0;}
+        </style>
+        <script>
+            function changebackground(){
+                if(!sessionStorage.getItem('background')){
+                   sessionStorage.setItem('background', "url({% static 'toeic/images/bgnight.jpg'%}) no-repeat center center fixed");
+                   sessionStorage.setItem('button', "#F6D5D5")
+                }else if(sessionStorage.getItem('background') == "url({% static 'toeic/images/bgnight.jpg'%}) no-repeat center center fixed"){
+                   sessionStorage.setItem('background', "url({% static 'toeic/images/bgday.jpg'%}) no-repeat center center fixed");
+                   sessionStorage.setItem('button', "#1C268A")
+                }else{
+                    sessionStorage.setItem('background', "url({% static 'toeic/images/bgnight.jpg'%}) no-repeat center center fixed");
+                    sessionStorage.setItem('button', "#F6D5D5")
+                }
+                location.reload();
+            };
 
+            function loadbackground(){
+            if (sessionStorage.getItem('background')) {
+            document.body.style.background = sessionStorage.getItem('background');
+            document.getElementById('changebackground').style.backgroundColor = sessionStorage.getItem('button') ;
+            }
+            };
+
+            $( document ).ready(function() {
+                loadbackground();
+                 $("audio").attr("preload","metadata");
+                 $("audio");
+                 var audio = document.getElementsByTagName('audio');
+                 audio.src="";
+            });
+
+        </script>
 	</head>
 	<body>
+	    <button id="changebackground" onclick="changebackground()"></button></div>
 		<div class="brand">Easy toeic</div>
    		<div class="address-bar">Your place to learn toeic. All in One. Easy and Effective</div>
 
@@ -44,20 +111,20 @@
                         <a href="{% url 'toeic:topics' %}">Vocabulary</a>
                     </li>
                     <li>
-                        <a href="{% url 'toeic:tests' %}">Test</a>
+                        <a href="{% url 'toeic:practicetests' %}">Exercises</a>
                     </li>
                     <li>
                         <a href="{% url 'toeic:grammartopics' %}">Grammar</a>
                     </li>
-                    {% if user.is_authenticated %} 
+                    {% if user.is_authenticated %}
 					<li>
 	 				<a href="{% url 'toeic:logout' %}">Hello, {{ user.username }}.
-					log out</a> 
+					log out</a>
 					</li>
-					{% else %} 
+					{% else %}
 					<li><a href="{% url 'toeic:register' %}">register</a></li>
 					<li><a href="{% url 'toeic:login' %}">log in</a> </li>
-	 				{% endif %} 
+	 				{% endif %}
                 </ul>
             </div>
             <!-- /.navbar-collapse -->
@@ -66,6 +133,7 @@
     </nav>
 		{% block content %}
 		{% endblock content %}
+	<div style="height:220px"></div>
 	</body>
 </html>
 

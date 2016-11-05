@@ -2,10 +2,10 @@
 {% block content %}
 <div class ="container">
 <div class="row">
-            <div class="box">  
+            <div class="box">
                 <div class="col-lg-12">
                     <hr>
-                    <h2 class="intro-text text-center">Pick an 
+                    <h2 class="intro-text text-center">Pick an
                         <strong>Activity</strong>
                     </h2>
                     <hr>
@@ -13,25 +13,52 @@
             <a href="{% url 'toeic:topics' %}">
                 <div class="col-sm-4 text-center">
                 	{% load static %}
-                    <img class="img-responsive" src="{% static 'toeic/images/most_beautiful_words.jpg'%}" alt="">
+                    <img class="img-responsive" src="{% static 'toeic/images/vocabpic.jpg'%}" alt="">
                     <h3>Vocabulary Topics
                         <small>All the words you need</small>
                     </h3>
                 </div></a>
+
+            <a href="{% url 'toeic:practicetests' %}">
+                <div class="col-sm-4 text-center">
+                    <img class="img-responsive" src="{% static 'toeic/images/practice.jpg'%}" alt="">
+                    <h3>Practice
+                        <small>Grammar&Vocabulary Practice Exercises</small>
+                    </h3>
+                </div></a>
+
             <a href="{% url 'toeic:tests' %}">
                 <div class="col-sm-4 text-center">
-                    <img class="img-responsive" src="{% static 'toeic/images/most_beautiful_words.jpg'%}" alt="">
+                    <img class="img-responsive" src="{% static 'toeic/images/test.jpg'%}" alt="">
                     <h3>Tests
                         <small>Grammar&Vocabulary Tests (Part 5,6)</small>
                     </h3>
-                </div>
+                </div></a>
+
             <a href="{% url 'toeic:grammartopics' %}">
                 <div class="col-sm-4 text-center">
-                    <img class="img-responsive" src="{% static 'toeic/images/most_beautiful_words.jpg'%}" alt="">
+                    <img class="img-responsive" src="{% static 'toeic/images/grammar.jpg'%}" alt="">
                     <h3>Grammar Topics
                         <small>Detailed grammar topics for self-learning</small>
                     </h3>
                 </div></a>
+
+            <a href="{% url 'toeic:toeicpart3videos' %}">
+                <div class="col-sm-4 text-center">
+                    <img class="img-responsive" src="{% static 'toeic/images/listening.jpg'%}" alt="">
+                    <h3>Listeing: Part 3
+                        <small>Listening practice exercises</small>
+                    </h3>
+                </div></a>
+
+            <a href="{% url 'toeic:pronunciationlessons' %}">
+                <div class="col-sm-4 text-center">
+                    <img class="img-responsive" src="{% static 'toeic/images/pronunciation.jpg'%}" alt="">
+                    <h3>Pronunciation
+                        <small>Practice your pronunciation skill</small>
+                    </h3>
+                </div></a>
+
                 <div class="clearfix"></div>
             </div>
         </div>

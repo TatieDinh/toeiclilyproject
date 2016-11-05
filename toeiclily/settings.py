@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 
 import os
 
+
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -24,9 +26,10 @@ SECRET_KEY = '@z1jmyri7b*1hyytf2cce2o8g4ixztr_i4-ardp9&%lhz81qm+'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
+#ALLOWED_HOSTS = ['*']
 ALLOWED_HOSTS = []
 
+SECURE_SSL_REDIRECT = True
 
 # Application definition
 
@@ -39,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'tinymce',
     'toeic',
+    'ckeditor',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -81,9 +85,10 @@ DATABASES = {
         #'ENGINE': 'django.db.backends.sqlite3',
         #'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'toeiclily',
-        'USER': 'root',
-        'PASSWORD': 'keepsake',
+        'NAME': 'tatie$toeic',
+        'USER': 'tatie',
+        'PASSWORD': 'perry2912',
+        'HOST': 'tatie.mysql.pythonanywhere-services.com',
     }
 }
 
@@ -124,8 +129,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+
 STATIC_URL = '/static/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 MEDIA_URL = '/media/'
+
+CKEDITOR_UPLOAD_PATH = "uploads/"
