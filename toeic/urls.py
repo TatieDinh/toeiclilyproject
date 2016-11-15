@@ -34,4 +34,8 @@ urlpatterns = [
 	url(r'^pronunciation/lessons/(?P<pronunciationlesson_id>\d+)/$', views.pronunciationlesson, name='pronunciationlesson'),
 	#url(r'^pronunciation/dictation/(?P<pronunciationlesson_id>\d+)/$', views.pronunciationdictation, name='pronunciationdictation'),
 	#url(r'^pronunciation/dictation/result/(?P<pronunciationlesson_id>\d+)/$', views.pronunciationresultdictation, name='pronunciationdictation'),
+	url(r'^speaking/topics/$', views.speakingtopics, name='speakingtopics'),
+	url(r'^speaking/topics/(?P<speakingtopic_id>\d+)/$', views.speakingtopic, name='speakingtopic'),
+	url(r'^speaking/topics/(?P<speakinglesson_id>\d+)/$', views.speakinglesson, name='speakinglesson'),
+	url(r'^speaking/topics/(?P<speakinglesson_id>\d+)/(?P<remain>\d+)/$', views.speakingpractice, name='speakingpractice'),
 	]

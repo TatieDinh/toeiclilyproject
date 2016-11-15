@@ -26,7 +26,6 @@ class Type(models.Model):
 class Level(models.Model):
     text = models.CharField(max_length=50, default="")
     date_added = models.DateTimeField(auto_now_add=True)
-
     def __unicode__(self):
         return self.text
 
@@ -286,9 +285,82 @@ class Phrase(models.Model):
     text = models.CharField(max_length=200)
     translation = models.CharField(max_length=200)
     date_added = models.DateTimeField(auto_now_add=True)
-    audio = models.FileField(upload_to="audios/dictations",blank=True, null=True)
+    audio = models.FileField(upload_to="audios/phrases",blank=True, null=True)
     topics = models.ManyToManyField(Topic, blank=True, null=True)
     listeningtopics = models.ManyToManyField(ListeningTopic, blank=True, null=True)
     vocabs = models.ManyToManyField(Vocab, blank=True, null=True)
+    def __unicode__(self):
+        return self.text
+
+class SpeakingQuestionType(models.Model):
+    text = models.CharField(max_length=200)
+    def __unicode__(self):
+        return self.text
+
+class SpeakingAnswer(models.Model):
+    text = models.CharField(max_length=200)
+    translation = models.CharField(max_length=200)
+    date_added = models.DateTimeField(auto_now_add=True)
+    audio = models.FileField(upload_to="audios/speakingquestion",blank=True, null=True)
+    vocabs = models.ManyToManyField(Vocab, blank=True, null=True)
+    def __unicode__(self):
+        return self.text
+
+class SpeakingQuestion(models.Model):
+    order = models.IntegerField(default = 1, blank=True, null=True)
+    questiontype = models.ForeignKey(SpeakingQuestionType, default = 1)
+    level= models.ForeignKey(Level,blank=True, null=True)
+    text = models.CharField(max_length=200)
+    textwithblank = models.CharField(max_length=200, blank=True, null=True)
+    translation = models.CharField(max_length=200)
+    date_added = models.DateTimeField(auto_now_add=True)
+    audio = models.FileField(upload_to="audios/speakingquestion",blank=True, null=True)
+    image = models.FileField(upload_to="images/speakingquestion", blank=True, null=True)
+    vocabs = models.ManyToManyField(Vocab, blank=True, null=True)
+    speakinganswer = models.ManyToManyField(SpeakingAnswer,blank=True, null=True)
+    def __unicode__(self):
+        return self.text
+
+class SpeakingTopic(models.Model):
+    text = models.CharField(max_length=200)
+    testset =  models.ManyToManyField(SpeakingQuestion,blank=True, null=True)
+    def __unicode__(self):
+        return self.text
+
+class SpeakingLesson(models.Model):
+    passage = RichTextField(blank=True, null=True)
+    video = models.URLField(null=True, blank=True)
+    text = models.CharField(max_length=200)
+    questions = models.ManyToManyField(SpeakingQuestion,blank=True, null=True)
+    topic = models.ForeignKey(SpeakingTopic)
+
+    def __unicode__(self):
+        return self.text
+
+class SpeakingPracticeType(models.Model):
+    text = models.CharField(max_length=200)
+    instruction = models.CharField(max_length=500, default = "")
+    def __unicode__(self):
+        return self.text
+
+class SpeakingPractice(models.Model):
+    practicetype = models.ForeignKey(SpeakingPracticeType, default = 1)
+    order = models.IntegerField(default = 1)
+    lesson = models.ForeignKey(SpeakingLesson)
+    questions = models.ManyToManyField(SpeakingQuestion,blank=True, null=True)
+    answers = models.ManyToManyField(SpeakingAnswer,blank=True, null=True)
+
+    def __unicode__(self):
+        return str(self.lesson) + " " + str(self.practicetype)
+
+class UserSpeakingAnswer(models.Model):
+    session = models.IntegerField(default = 1, blank=True, null=True)
+    user = models.ForeignKey(User)
+    question = models.ForeignKey(SpeakingQuestion)
+    lesson = models.ForeignKey(SpeakingLesson)
+    practice = models.ForeignKey(SpeakingPractice, null = True)
+    text = models.TextField(default="")
+    date_added = models.DateTimeField(auto_now_add=True)
+
     def __unicode__(self):
         return self.text

@@ -2,7 +2,7 @@
 import operator
 from collections import OrderedDict
 from django.shortcuts import render
-from .models import Topic, Test, Question, Answer, Vocab, UserVocab, UserAnswer, GrammarTopic, UserAnswerGrammarQuiz, UserAnswerVideoLesson, UserDictation, VideoLesson, Dictation, PronunciationLesson
+from .models import Topic, Test, Question, Answer, Vocab, UserVocab, UserAnswer, GrammarTopic, UserAnswerGrammarQuiz, UserAnswerVideoLesson, UserDictation, VideoLesson, Dictation, PronunciationLesson, SpeakingAnswer, SpeakingQuestion, SpeakingTopic, SpeakingLesson, SpeakingPractice
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth import login, logout, authenticate
@@ -588,7 +588,7 @@ def resultdictation(request, video_id):
     return render(request, 'toeic/resultdictation.html', context)
 
 def pronunciationlessons(request):
-    """Show all videos"""
+    """Show all lesson"""
     prounciationlessons = PronunciationLesson.objects.order_by('id')
     context = {'pronunciationlessons': prounciationlessons}
     return render(request, 'toeic/pronunciationlessons.html', context)
@@ -599,3 +599,31 @@ def pronunciationlesson(request, pronunciationlesson_id):
 
     context = {'pronunciationlesson': pronunciationlesson, 'vocabs':vocabs}
     return render(request, 'toeic/pronunciationlesson.html', context)
+
+def speakingtopics(request):
+    speakingtopics = SpeakingTopic.objects.order_by('id')
+    context = {'speakingtopics': speakingtopics}
+    return render(request, 'toeic/speakingtopics.html', context)
+
+def speakingtopic(request, speakingtopic_id):
+    speakingtopic = SpeakingTopic.objects.get(id=speakingtopic_id)
+    speakinglessons = pronunciationlesson.speakinglessons.all()
+
+    context = {'speakinglessons': speakinglessons, 'speakingtopic':speakingtopic}
+    return render(request, 'toeic/speakingtopic.html', context)
+
+def speakinglesson(request, speakinglesson_id):
+    speakinglesson = SpeakingLesson.objects.get(id=speakinglesson_id)
+    speakingpractices = SpeakingPractice.objects.filter(lesson = speakinglesson.id).orderby('order')
+    remain = len(speakingpractices)
+
+    context = {'speakinglesson': speakinglesson,'remain' : remain}
+    return render(request, 'toeic/speakinglesson.html', context)
+
+def speakingpractice(request, speakinglesson_id, remain):
+    speakingpractices = SpeakingPractice.objects.filter(lesson = speakinglesson_id).orderby('order')
+    speakingpractice = speakingpractices[len(speakingpractices) - remain]
+    remain = remain -1
+
+    context = {'speakinglesson' : speakinglesson, 'speakingpractice': speakingpractice, 'remain' : remain}
+    return render(request, 'toeic/speakingpractice.html', context)
