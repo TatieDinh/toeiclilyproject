@@ -36,6 +36,6 @@ urlpatterns = [
 	#url(r'^pronunciation/dictation/result/(?P<pronunciationlesson_id>\d+)/$', views.pronunciationresultdictation, name='pronunciationdictation'),
 	url(r'^speaking/topics/$', views.speakingtopics, name='speakingtopics'),
 	url(r'^speaking/topics/(?P<speakingtopic_id>\d+)/$', views.speakingtopic, name='speakingtopic'),
-	url(r'^speaking/topics/(?P<speakinglesson_id>\d+)/$', views.speakinglesson, name='speakinglesson'),
-	url(r'^speaking/topics/(?P<speakinglesson_id>\d+)/(?P<remain>\d+)/$', views.speakingpractice, name='speakingpractice'),
+	url(r'^speaking/topics/(?P<speakingtopic_id>\d+)/(?P<speakinglesson_id>\d+)/$', views.speakinglesson, name='speakinglesson'),
+	url(r'^speaking/topics/(?P<speakingtopic_id>\d+)/(?P<speakinglesson_id>\d+)/(?P<remain>\d+)/$', views.speakingpractice, name='speakingpractice'),
 	]

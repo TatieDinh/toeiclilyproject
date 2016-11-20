@@ -25,7 +25,7 @@ class SpeakingAnswerAdmin(admin.ModelAdmin):
     filter_horizontal = ('vocabs',)
 
 class SpeakingLessonAdmin(admin.ModelAdmin):
-    filter_horizontal = ('questions',)
+    filter_horizontal = ('questions', 'vocabs')
 
 class SpeakingTopicAdmin(admin.ModelAdmin):
     filter_horizontal = ('testset',)

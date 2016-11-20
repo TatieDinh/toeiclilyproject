@@ -8,6 +8,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import UserCreationForm
 from .form import UserVocabForm, UserDictationForm, UserAnswerForm, UserAnswerGrammarQuizForm, SearchForm
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 # Create your views here.
 def index(request):
@@ -607,23 +608,79 @@ def speakingtopics(request):
 
 def speakingtopic(request, speakingtopic_id):
     speakingtopic = SpeakingTopic.objects.get(id=speakingtopic_id)
-    speakinglessons = pronunciationlesson.speakinglessons.all()
+    speakinglessons = SpeakingLesson.objects.filter(topic = speakingtopic.id).order_by('order')
 
     context = {'speakinglessons': speakinglessons, 'speakingtopic':speakingtopic}
     return render(request, 'toeic/speakingtopic.html', context)
 
-def speakinglesson(request, speakinglesson_id):
+def speakinglesson(request, speakingtopic_id, speakinglesson_id):
     speakinglesson = SpeakingLesson.objects.get(id=speakinglesson_id)
-    speakingpractices = SpeakingPractice.objects.filter(lesson = speakinglesson.id).orderby('order')
+    speakingtopic = SpeakingTopic.objects.get(id=speakingtopic_id)
+    questions = speakinglesson.questions.all()
+    questions_dict = OrderedDict()
+    for question in questions:
+        answers = question.speakinganswer.all()
+        questions_dict[question] = answers
+    speakingpractices = SpeakingPractice.objects.filter(lesson = speakinglesson.id).order_by('order')
     remain = len(speakingpractices)
+    vocabs = speakinglesson.vocabs.all()
 
-    context = {'speakinglesson': speakinglesson,'remain' : remain}
+    context = {'vocabs':vocabs, 'speakingtopic': speakingtopic, 'speakinglesson': speakinglesson,'remain' : remain, 'questions' : questions_dict}
     return render(request, 'toeic/speakinglesson.html', context)
 
-def speakingpractice(request, speakinglesson_id, remain):
-    speakingpractices = SpeakingPractice.objects.filter(lesson = speakinglesson_id).orderby('order')
+def speakingpractice(request, speakingtopic_id, speakinglesson_id, remain):
+    speakinglesson = SpeakingLesson.objects.get(id=speakinglesson_id)
+    # nextspeakinglesson_id = speakinglesson_id + 1
+    # nextspeakingtopic_id = speakingtopic_id + 1
+    # if speakinglesson.islast == False:
+    #     nextspeakinglesson = SpeakingLesson.objects.get(id=nextspeakinglesson_id)
+    # else:
+    #     nextspeakinglesson = None
+    # if SpeakingTopic.objects.get(id=nextspeakingtopic_id).exists():
+    #     nextspeakingtopic = SpeakingTopic.objects.get(id=nextspeakingtopic_id)
+    # else:
+    #     nextspeakingtopic = None
+    speakingpractices = SpeakingPractice.objects.filter(lesson = speakinglesson_id).order_by('order')
+    remain = int(remain)
     speakingpractice = speakingpractices[len(speakingpractices) - remain]
-    remain = remain -1
+    remain = remain-1
+    answers_dict = OrderedDict()
+    answers = speakingpractice.answers.all()
+    questions = speakingpractice.questions.all()
+    if speakingpractice.practicetype.id == 1:
+        for answer in answers:
+            if answer.speakingquestion_set.filter(speakingpractice__id = speakingpractice.id).exists():
+                question = answer.speakingquestion_set.filter(speakingpractice__id = speakingpractice.id).first()
+                answers_dict[answer] = question
+        answers_list = answers_dict.items()
+        paginator = Paginator(answers_list, 1)
+        page = request.GET.get('page')
+        try:
+            answers_list = paginator.page(page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            answers_list = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            answers_list = paginator.page(paginator.num_pages)
+    else:
+        answers_list = []
+        for question in questions:
+            answers_list.append(question)
+        for answer in answers:
+            answers_list.append(answer)
+        paginator = Paginator(answers_list, 1)
+        page = request.GET.get('page')
+        try:
+            answers_list = paginator.page(page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            answers_list = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            answers_list = paginator.page(paginator.num_pages)
 
-    context = {'speakinglesson' : speakinglesson, 'speakingpractice': speakingpractice, 'remain' : remain}
+
+
+    context = {'speakinglesson' : speakinglesson,'speakingtopic_id' : speakingtopic_id, 'speakingpractice': speakingpractice, 'remain' : remain, 'answers' : answers_list}
     return render(request, 'toeic/speakingpractice.html', context)

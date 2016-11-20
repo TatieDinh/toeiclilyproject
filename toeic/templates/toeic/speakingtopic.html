@@ -1,0 +1,32 @@
+{% extends "toeic/secondbase.html" %}
+
+{% block content %}
+<div class ="container">
+<div class="row">
+    <div class="box">
+        <div class="col-lg-12">
+            <hr>
+            <h2 class="intro-text text-center"><a href="{% url 'toeic:speakingtopics' %}">Topic</a>:
+                <strong>{{speakingtopic}}</strong>
+            </h2>
+            <hr>
+    	</div>
+    	<div class="col-lg-12">
+            <div class="list-type5">
+				<ol>
+				{% for speakinglesson in speakinglessons %}
+					<li>
+					<a href="{% url 'toeic:speakinglesson' speakingtopic.id speakinglesson.id %}">{{ speakinglesson }}</a>
+					</li>
+				{% empty %}
+					<li>No lessons have been added yet.</li>
+				{% endfor %}
+				 </ol>
+			</div>
+    	</div>
+    </div>
+</div>
+</div>
+
+{% endblock content %}
+

@@ -1,0 +1,335 @@
+{% extends "toeic/secondbase.html" %}
+
+{% block content %}
+<div class ="container">
+<div class="row">
+    <div class="box">
+        <div class="col-lg-12">
+            <hr>
+            <h2 class="intro-text text-center"><a href="{% url 'toeic:speakingtopic' speakingtopic.id %}">{{ speakingtopic }}</a>:
+                <strong>{{speakinglesson.text}}</strong>
+            </h2>
+            <hr>
+        </div>
+        <div class="col-lg-12" style="margin: 20px">
+            <p id="">{{ speakinglesson.passage|safe }}</p>
+        </div>
+        <div class="col-lg-12">
+        <div class ="text-center" style="margin-bottom:30px"><a id ="vocab" style="cursor: pointer;"><button class="btn btn-info" name="">Vocabulary</button></div></a>
+			<div id="vocabs" style="display:none;">
+			    <table class="table">
+				{% for vocab in vocabs %}
+					<tr>
+						<td style ="padding-left: 20px">
+						    {{ vocab.text}}
+						</td>
+
+						<td style ="">
+						    {% if vocab.phoneticb %}
+						    <span style ="text-transform: lowercase;">{{ vocab.phoneticb}}</span>
+						    {% endif %}
+						</td>
+						<td>
+						    {% if vocab.audio %}
+						    <audio id="myAudio-{{vocab.id}}">
+						    <source src="{{ vocab.audio.url }}" type="audio/wav">
+                            Your browser does not support the audio element.
+                            </audio>
+                            {% load static %}
+                            <button type="button" style="background-image: url({% static 'toeic/images/playpause.png'%});background-size: 100%; height:25px; width:25px; background-color:transparent; border:none" onclick="aud_play_pause_{{vocab.id}}()"></button>
+                            <script>
+                            function aud_play_pause_{{vocab.id}}() {
+                              var myAudio = document.getElementById("myAudio-{{vocab.id}}");
+                              if (myAudio.paused) {
+                                myAudio.play();
+                              } else {
+                                myAudio.pause();
+                              }
+                            }
+                            </script>
+                            <button type="button" id="rec{{vocab.id}}" style="margin-top:10px; background-image: url({% static 'toeic/images/record.png'%});background-size: 100%; height:25px; width:25px; background-color:transparent; border:none" onclick="record_{{vocab.id}}()"></button>
+                                <button type ="button" id="stop{{vocab.id}}" style="margin-top:10px; background-image: url({% static 'toeic/images/stop.png'%});background-size: 100%; height:25px; width:25px; background-color:transparent; border:none" onclick="stop_{{vocab.id}}()"></button>
+                                <audio autoplay id="record{{vocab.id}}"></audio>
+                                <script>
+                                var context;
+                                var onFail = function(e) {
+                                    console.log('Rejected!', e);
+                                  };
+
+                                  var onSuccess = function(s) {
+                                    context = new webkitAudioContext();
+                                    var mediaStreamSource = context.createMediaStreamSource(s);
+                                    recorder = new Recorder(mediaStreamSource);
+                                    recorder.record();
+
+                                    // audio loopback
+                                    // mediaStreamSource.connect(context.destination);
+                                  }
+
+                                  window.URL = window.URL || window.webkitURL;
+                                  navigator.getUserMedia  = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+
+                                  var recorder;
+                                  var audio = document.getElementById('record{{vocab.id}}');
+
+                                  function record_{{vocab.id}}() {
+                                    if (navigator.getUserMedia) {
+                                      navigator.getUserMedia({audio: true}, onSuccess, onFail);
+                                      document.getElementById('rec{{vocab.id}}').style.backgroundImage = "url({% static 'toeic/images/mic.png'%})";
+                                      document.getElementById('stop{{vocab.id}}').style.backgroundImage = "url({% static 'toeic/images/stop.png'%})";
+                                    } else {
+                                      console.log('navigator.getUserMedia not present');
+                                    }
+                                  }
+                                  function stop_{{vocab.id}}() {
+                                    if (recorder){
+                                         recorder.stop();
+                                    recorder.exportWAV(function(s) {
+                                      audio.src = window.URL.createObjectURL(s)});
+                                    document.getElementById('rec{{vocab.id}}').style.backgroundImage = "url({% static 'toeic/images/record.png'%})";
+                                    document.getElementById('stop{{vocab.id}}').style.backgroundImage = "url({% static 'toeic/images/play.png'%})";
+                                    };
+
+                                    if (context.state !="closed"){
+                                        context.close()}
+                                  }
+                            </script>
+                            {% endif %}
+					    </td>
+						<td style ="font-size: 0.8em;">{{vocab.wordType}}</td>
+						<td style ="">{{vocab.definition}}</td>
+					</tr>
+				{% empty %}
+					<tr>No results.</tr>
+				{% endfor %}
+			</table>
+			</div>
+			    <script>
+                $( "#vocab" ).click(function() {
+                $( "#vocabs" ).toggle(function() {
+                });
+                });
+                </script>
+        </div>
+        <div class="col-lg-12">
+            {% load static %}
+            <table class="table">
+        {% for question,answers in questions.iteritems  %}
+          <tr>
+            <td style ="color:green">
+                <p style ="color:green">{{ question.text}}</p>
+                <span>{{question.translation}}</span>
+              </td>
+            <td>
+                {% if question.image %}
+                    <img style ="margin:auto; max-height: 100px" class="img-responsive" src="{{ question.image.url }}" alt="">
+                {% endif %}
+            </td>
+            {% if question.audio %}
+            <td style ="min-width:140px">
+                <audio id="myAudio-{{question.id}}">
+                <source src="{{ question.audio.url }}" type="audio/wav">
+                <source src="{{ question.audio.url }}" type="audio/mp3">
+                            Your browser does not support the audio element.
+                            </audio>
+                            <div style="display:inline-block">
+                            <button type="button" style="background-image: url({% static 'toeic/images/playpause.png'%});background-size: 100%; height:25px; width:25px; background-color:transparent; border:none; vertical-align:bottom;" onclick="aud_play_pause_{{question.id}}()"></button>
+                            <button type="button" value="1" id="speed{{question.id}}" class="roundbutton" style="height:25px; width:25px; background-color:#1C268A; color:white; vertical-align:bottom;" onclick="changespeed_{{question.id}}()">1</button>
+                            <script>
+                            function aud_play_pause_{{question.id}}() {
+                              var myAudio = document.getElementById("myAudio-{{question.id}}");
+                              if (myAudio.paused) {
+                                myAudio.play();
+                              } else {
+                                myAudio.pause();
+                              }
+                            };
+
+                            function changespeed_{{question.id}}(){
+                                var myAudio = document.getElementById("myAudio-{{question.id}}");
+                                currentspeed = document.getElementById("speed{{question.id}}").value;
+                                if (currentspeed == "1")
+                                {
+                                    myAudio.playbackRate = 0.7;
+                                    document.getElementById("speed{{question.id}}").innerHTML = "0.7";
+                                    document.getElementById("speed{{question.id}}").value = 0.7;
+                                }
+                                else if (currentspeed == "0.7")
+                                {
+                                    myAudio.playbackRate = 0.5;
+                                    document.getElementById("speed{{question.id}}").value = 0.5;
+                                    document.getElementById("speed{{question.id}}").innerHTML = "0.5";
+                                  }else
+                                {
+                                    myAudio.playbackRate = 1;
+                                    document.getElementById("speed{{question.id}}").value = 1;
+                                    document.getElementById("speed{{question.id}}").innerHTML = "1";
+                                }
+                            }
+                            </script>
+                                <button type="button" id="rec{{question.id}}" style="background-image: url({% static 'toeic/images/record.png'%});background-size: 100%; height:25px; width:25px; background-color:transparent; border:none; vertical-align:bottom;" onclick="record_{{question.id}}()"></button>
+                                <button type ="button" id="stop{{question.id}}" style="background-image: url({% static 'toeic/images/stop.png'%});background-size: 100%; height:25px; width:25px; background-color:transparent; border:none; vertical-align:bottom;" onclick="stop_{{question.id}}()"></button>
+                                </div>
+                                <audio autoplay id="record{{question.id}}"></audio>
+                                <script>
+                                var context;
+                                var onFail = function(e) {
+                                    console.log('Rejected!', e);
+                                  };
+
+                                  var onSuccess = function(s) {
+                                    context = new webkitAudioContext();
+                                    var mediaStreamSource = context.createMediaStreamSource(s);
+                                    recorder = new Recorder(mediaStreamSource);
+                                    recorder.record();
+
+                                    // audio loopback
+                                    // mediaStreamSource.connect(context.destination);
+                                  }
+
+                                  window.URL = window.URL || window.webkitURL;
+                                  navigator.getUserMedia  = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+
+                                  var recorder;
+                                  var audio = document.getElementById('record{{question.id}}');
+
+                                  function record_{{question.id}}() {
+                                    if (navigator.getUserMedia) {
+                                      navigator.getUserMedia({audio: true}, onSuccess, onFail);
+                                      document.getElementById('rec{{question.id}}').style.backgroundImage = "url({% static 'toeic/images/mic.png'%})";
+                                      document.getElementById('stop{{question.id}}').style.backgroundImage = "url({% static 'toeic/images/stop.png'%})";
+                                    } else {
+                                      console.log('navigator.getUserMedia not present');
+                                    }
+                                  }
+                                  function stop_{{question.id}}() {
+                                    if (recorder){
+                                         recorder.stop();
+                                    recorder.exportWAV(function(s) {
+                                      audio.src = window.URL.createObjectURL(s)});
+                                    document.getElementById('rec{{question.id}}').style.backgroundImage = "url({% static 'toeic/images/record.png'%})";
+                                    document.getElementById('stop{{question.id}}').style.backgroundImage = "url({% static 'toeic/images/play.png'%})";
+                                    };
+
+                                    if (context.state !="closed"){
+                                        context.close()}
+                                  }
+                            </script>
+                        </td>
+                        {% endif %}
+                        </tr>
+                        {% for answer in answers %}
+                        <tr>
+                        <td style ="">
+                            <p>{{ answer.text}}</p>
+                            {{answer.translation}}
+                        </td>
+                       <td>
+                            {% if answer.image %}
+                                <img style ="margin:auto; max-height: 100px" class="img-responsive" src="{{ answer.image.url }}" alt="">
+                            {% endif %}
+                        </td>
+              {% if answer.audio %}
+                        <td style ="min-width:140px">
+                            <audio id="myAudio-answer_{{answer.id}}">
+                            <source src="{{ answer.audio.url }}" type="audio/wav">
+                            <source src="{{ answer.audio.url }}" type="audio/mp3">
+                            Your browser does not support the audio element.
+                            </audio>
+                            <div style="display:inline-block">
+                            <button type="button" style="background-image: url({% static 'toeic/images/playpause.png'%});background-size: 100%; height:25px; width:25px; background-color:transparent; border:none;vertical-align:bottom;" onclick="aud_play_pause_answer_{{answer.id}}()"></button>
+                            <button type="button" value="1" id="speed_answer_{{answer.id}}" class="roundbutton" style="height:25px; width:25px; background-color:#1C268A; color:white;vertical-align:bottom;" onclick="changespeed_answer_{{answer.id}}()">1</button>
+                            <script>
+                            function aud_play_pause_answer_{{answer.id}}() {
+                              var myAudio = document.getElementById("myAudio-answer_{{answer.id}}");
+                              if (myAudio.paused) {
+                                myAudio.play();
+                              } else {
+                                myAudio.pause();
+                              }
+                            };
+
+                            function changespeed_answer_{{answer.id}}(){
+                                var myAudio = document.getElementById("myAudio-answer_{{answer.id}}");
+                                currentspeed = document.getElementById("speed_answer_{{answer.id}}").value;
+                                if (currentspeed == "1")
+                                {
+                                    myAudio.playbackRate = 0.7;
+                                    document.getElementById("speed_answer_{{answer.id}}").innerHTML = "0.7";
+                                    document.getElementById("speed_answer_{{answer.id}}").value = 0.7;
+                                }
+                                else if (currentspeed == "0.7")
+                                {
+                                    myAudio.playbackRate = 0.5;
+                                    document.getElementById("speed_answer_{{answer.id}}").value = 0.5;
+                                    document.getElementById("speed_answer_{{answer.id}}").innerHTML = "0.5";
+                                }else
+                                {
+                                    myAudio.playbackRate = 1;
+                                    document.getElementById("speed_answer_{{answer.id}}").value = 1;
+                                    document.getElementById("speed_answer_{{answer.id}}").innerHTML = "1";
+                                }
+                            }
+                            </script>
+                                <button type="button" id="rec_answer_{{answer.id}}" style="background-image: url({% static 'toeic/images/record.png'%});background-size: 100%; height:25px; width:25px; background-color:transparent; border:none; vertical-align:bottom;" onclick="record_answer_{{answer.id}}()"></button>
+                                <button type ="button" id="stop_answer_{{answer.id}}" style="background-image: url({% static 'toeic/images/stop.png'%});background-size: 100%; height:25px; width:25px; background-color:transparent; border:none; vertical-align:bottom;" onclick="stop_answer_{{answer.id}}()"></button>
+                                </div>
+                                <audio autoplay id="record_answer_{{answer.id}}"></audio>
+                                <script>
+                                var context;
+                                var onFail = function(e) {
+                                    console.log('Rejected!', e);
+                                  };
+
+                                  var onSuccess = function(s) {
+                                    context = new webkitAudioContext();
+                                    var mediaStreamSource = context.createMediaStreamSource(s);
+                                    recorder = new Recorder(mediaStreamSource);
+                                    recorder.record();
+
+                                    // audio loopback
+                                    // mediaStreamSource.connect(context.destination);
+                                  }
+
+                                  window.URL = window.URL || window.webkitURL;
+                                  navigator.getUserMedia  = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+
+                                  var recorder;
+                                  var audio = document.getElementById('record_answer_{{answer.id}}');
+
+                                  function record_answer_{{answer.id}}() {
+                                    if (navigator.getUserMedia) {
+                                      navigator.getUserMedia({audio: true}, onSuccess, onFail);
+                                      document.getElementById('rec_answer_{{answer.id}}').style.backgroundImage = "url({% static 'toeic/images/mic.png'%})";
+                                      document.getElementById('stop_answer_{{answer.id}}').style.backgroundImage = "url({% static 'toeic/images/stop.png'%})";
+                                    } else {
+                                      console.log('navigator.getUserMedia not present');
+                                    }
+                                  }
+                                  function stop_answer_{{answer.id}}() {
+                                    if (recorder){
+                                         recorder.stop();
+                                    recorder.exportWAV(function(s) {
+                                      audio.src = window.URL.createObjectURL(s)});
+                                    document.getElementById('rec_answer_{{answer.id}}').style.backgroundImage = "url({% static 'toeic/images/record.png'%})";
+                                    document.getElementById('stop_answer_{{answer.id}}').style.backgroundImage = "url({% static 'toeic/images/play.png'%})";
+                                    };
+
+                                    if (context.state !="closed"){
+                                        context.close()}
+                                  }
+                            </script>
+                        </td>
+                        {% endif %}
+              {% endfor %}
+          </tr>
+        {% empty %}\
+          <tr>No questions have been added yet.</tr>
+        {% endfor %}
+      </table>
+        </div>
+        <div class ="text-center"><a href="{% url 'toeic:speakingpractice' speakingtopic.id speakinglesson.id  remain %}"><button class="btn btn-info" name="">Practice</button></a></div>
+   </div>
+</div>
+</div>
+{% endblock content %}

@@ -87,6 +87,7 @@ class Vocab(models.Model):
     topic = models.ManyToManyField(Topic)
     image = models.FileField(upload_to="images/vocabs",blank=True, null=True)
     audio = models.FileField(upload_to="audios/vocabs",blank=True, null=True)
+    audioa = models.FileField(upload_to="audios/vocabs",blank=True, null=True)
     phoneticb = models.CharField(max_length=50, blank=True, null=True)
     phonetica = models.CharField(max_length=50, blank=True, null=True)
     def __unicode__(self):
@@ -301,7 +302,11 @@ class SpeakingAnswer(models.Model):
     text = models.CharField(max_length=200)
     translation = models.CharField(max_length=200)
     date_added = models.DateTimeField(auto_now_add=True)
-    audio = models.FileField(upload_to="audios/speakingquestion",blank=True, null=True)
+    audio = models.FileField(upload_to="audios/speakinganswer",blank=True, null=True)
+    audioa = models.FileField(upload_to="audios/speakinganswer",blank=True, null=True)
+    image = models.FileField(upload_to="images/speakinganswer", blank=True, null=True)
+    info = models.CharField(max_length=200, blank=True)
+    hint = models.CharField(max_length=200, blank=True)
     vocabs = models.ManyToManyField(Vocab, blank=True, null=True)
     def __unicode__(self):
         return self.text
@@ -315,6 +320,7 @@ class SpeakingQuestion(models.Model):
     translation = models.CharField(max_length=200)
     date_added = models.DateTimeField(auto_now_add=True)
     audio = models.FileField(upload_to="audios/speakingquestion",blank=True, null=True)
+    audioa = models.FileField(upload_to="audios/speakingquestion",blank=True, null=True)
     image = models.FileField(upload_to="images/speakingquestion", blank=True, null=True)
     vocabs = models.ManyToManyField(Vocab, blank=True, null=True)
     speakinganswer = models.ManyToManyField(SpeakingAnswer,blank=True, null=True)
@@ -328,11 +334,15 @@ class SpeakingTopic(models.Model):
         return self.text
 
 class SpeakingLesson(models.Model):
+    order = models.IntegerField(default = 1)
     passage = RichTextField(blank=True, null=True)
     video = models.URLField(null=True, blank=True)
     text = models.CharField(max_length=200)
     questions = models.ManyToManyField(SpeakingQuestion,blank=True, null=True)
     topic = models.ForeignKey(SpeakingTopic)
+    isfirst = models.BooleanField(default=False)
+    islast = models.BooleanField(default=False)
+    vocabs = models.ManyToManyField(Vocab, blank=True, null=True)
 
     def __unicode__(self):
         return self.text
