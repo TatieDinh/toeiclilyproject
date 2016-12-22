@@ -102,12 +102,12 @@ def checkvocab(request, topic_id):
                 new_uservocab.save(force_insert=True)
             vocabs_dict[vocab] = form
 
-        return HttpResponseRedirect(reverse('toeic:resultvocab', args=[topic.id]))
+        return HttpResponseRedirect(reverse('toeic:resultvocab', kwargs={'topic_id':topic.id,'session': session}))
 
     context = {'topic': topic, 'vocabs':vocabs_dict}
     return render(request, 'toeic/checkvocab.html', context)
 
-def resultvocab(request, topic_id):
+def resultvocab(request, topic_id, session):
     topic = Topic.objects.get(id=topic_id)
     vocabs = topic.vocab_set.all()
     vocabs_dict = {}
@@ -117,14 +117,19 @@ def resultvocab(request, topic_id):
         return HttpResponseRedirect(reverse('toeic:index'))
 
     try:
-        lastanswer = UserVocab.objects.filter(user = currentUser.id).latest("date_added")
-        session = lastanswer.session
-
+        # lastanswer = UserVocab.objects.filter(user = currentUser.id).latest("date_added")
+        # session = lastanswer.session
+        user_uservocabs = UserVocab.objects.filter(user = currentUser.id).filter(session = session)
         for vocab in vocabs:
-            if UserVocab.objects.filter(user = currentUser.id).filter(session = session).filter(vocab = vocab.id).exists():
-                user_uservocab = UserVocab.objects.filter(user = currentUser.id).filter(session = session).filter(vocab = vocab.id).latest("date_added")
-                user_vocab = user_uservocab.text
-            else:
+            # if UserVocab.objects.filter(user = currentUser.id).filter(session = session).filter(vocab = vocab.id).exists():
+            #     user_uservocab = UserVocab.objects.filter(user = currentUser.id).filter(session = session).filter(vocab = vocab.id).latest("date_added")
+            #     user_vocab = user_uservocab.text
+            isanswer = False
+            for user_uservocab in user_uservocabs:
+                if user_uservocab.vocab == vocab:
+                    user_vocab = user_uservocab.text
+                    isanswer = True
+            if isanswer == False:
                 user_vocab = "Unknown"
             vocabs_dict[vocab] = user_vocab
     except UserVocab.DoesNotExist:
@@ -236,6 +241,7 @@ def test(request, test_id):
 
         for question in questions:
             form = UserAnswerForm(question.id, request.POST, prefix=question.id)
+            question_id = question.id
             if form.is_valid():
                 new_useranswer = UserAnswer()
                 new_useranswer.session = session
@@ -244,8 +250,10 @@ def test(request, test_id):
                 new_useranswer.test = test
                 new_useranswer.answer = form.cleaned_data['answer']
                 new_useranswer.save(force_insert=True)
-            questions_dict[question] = form
 
+                request.session[question_id] = form.cleaned_data['answer']
+            else:
+                request.session[question_id] = 'unknown'
         return HttpResponseRedirect(reverse('toeic:resulttest', args=[test.id]))
 
     context = {'test': test, 'questions':questions_dict}
@@ -265,13 +273,18 @@ def resulttest(request, test_id):
     try:
         lastanswer = UserAnswer.objects.filter(user = currentUser.id).latest("date_added")
         session = lastanswer.session
-
         for question in questions:
-            if UserAnswer.objects.filter(user = currentUser.id).filter(session = session).filter(question = question.id).exists():
-                user_useranswer = UserAnswer.objects.filter(user = currentUser.id).filter(session = session).filter(question = question.id).latest("date_added")
-                useranswer = user_useranswer.answer.text
+            # if UserAnswer.objects.filter(user = currentUser.id).filter(session = session).filter(question = question.id).exists():
+            #     user_useranswer = UserAnswer.objects.filter(user = currentUser.id).filter(session = session).filter(question = question.id).latest("date_added")
+            #     useranswer = user_useranswer.answer.text
+            # else:
+            #     useranswer = "Unknown"
+            question_id = question.id
+            if question_id in request.session:
+                useranswer = request.session.get(question_id)
+                del request.session[question_id]
             else:
-                useranswer = "Unknown"
+                useranswer = 'unknown'
             answers = question.answer_set.all()
             for answer in answers:
                 if answer.istrue == True and useranswer == answer.text:
@@ -300,6 +313,7 @@ def resulttest(request, test_id):
             questions_dict[question].append(iscorrect)
             questions_dict[question].append(vocabs)
             iscorrect = False
+
 
     context = {'test': test, 'questions':questions_dict, 'rightanswers':rightanswers}
     return render(request, 'toeic/resulttest.html', context)

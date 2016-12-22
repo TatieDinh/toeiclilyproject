@@ -127,41 +127,69 @@
             </td>
             {% if question.audio %}
             <td style ="min-width:140px">
-                <audio id="myAudio-{{question.id}}">
+                <audio id="myAudio-{{question.id}}-br" class="myAudio-{{question.id}}">
                 <source src="{{ question.audio.url }}" type="audio/wav">
                 <source src="{{ question.audio.url }}" type="audio/mp3">
                             Your browser does not support the audio element.
-                            </audio>
+                </audio>
+            {% if question.audioa %}
+                <audio id="myAudio-{{question.id}}-am" class="myAudio-{{question.id}}">
+                <source src="{{ question.audioa.url }}" type="audio/wav">
+                <source src="{{ question.audioa.url }}" type="audio/mp3">
+                            Your browser does not support the audio element.
+                </audio>
+            {% endif%}
                             <div style="display:inline-block">
-                            <button type="button" style="background-image: url({% static 'toeic/images/playpause.png'%});background-size: 100%; height:25px; width:25px; background-color:transparent; border:none; vertical-align:bottom;" onclick="aud_play_pause_{{question.id}}()"></button>
+                            <button type="button" style="background-image: url({% static 'toeic/images/playpause.png'%});background-size: 100%; height:25px; width:25px; background-color:transparent; border:none; vertical-align:bottom;" onclick="aud_play_pause_{{question.id}}_br()"></button>
+                            <button type="button" style="background-image: url({% static 'toeic/images/american.png'%});background-size: 100%; height:25px; width:25px; background-color:transparent; border:none; vertical-align:bottom;" onclick="aud_play_pause_{{question.id}}_am()"></button>
+
                             <button type="button" value="1" id="speed{{question.id}}" class="roundbutton" style="height:25px; width:25px; background-color:#1C268A; color:white; vertical-align:bottom;" onclick="changespeed_{{question.id}}()">1</button>
                             <script>
-                            function aud_play_pause_{{question.id}}() {
-                              var myAudio = document.getElementById("myAudio-{{question.id}}");
+                            function aud_play_pause_{{question.id}}_br() {
+                              var myAudio = document.getElementById("myAudio-{{question.id}}-br");
                               if (myAudio.paused) {
                                 myAudio.play();
                               } else {
                                 myAudio.pause();
                               }
-                            };
+                            }
 
-                            function changespeed_{{question.id}}(){
-                                var myAudio = document.getElementById("myAudio-{{question.id}}");
+                            function aud_play_pause_{{question.id}}_am() {
+                              var myAudio = document.getElementById("myAudio-{{question.id}}-am");
+                              if (myAudio.paused) {
+                                myAudio.play();
+                              } else {
+                                myAudio.pause();
+                              }
+                            }
+
+                            function changespeed_{{question.id}}() {
+                                var myAudio_br= document.getElementById("myAudio-{{question.id}}-br");
+                                var myAudio_am= document.getElementById("myAudio-{{question.id}}-am");
                                 currentspeed = document.getElementById("speed{{question.id}}").value;
                                 if (currentspeed == "1")
                                 {
-                                    myAudio.playbackRate = 0.7;
+                                    myAudio_br.playbackRate = 0.7;
+                                    if (myAudio_am != null){
+                                        myAudio_am.playbackRate = 0.7;
+                                    }
                                     document.getElementById("speed{{question.id}}").innerHTML = "0.7";
                                     document.getElementById("speed{{question.id}}").value = 0.7;
                                 }
                                 else if (currentspeed == "0.7")
                                 {
-                                    myAudio.playbackRate = 0.5;
+                                    myAudio_br.playbackRate = 0.5;
+                                      if (myAudio_am != null){
+                                        myAudio_am.playbackRate = 0.5;
+                                      }
                                     document.getElementById("speed{{question.id}}").value = 0.5;
                                     document.getElementById("speed{{question.id}}").innerHTML = "0.5";
                                   }else
                                 {
-                                    myAudio.playbackRate = 1;
+                                    myAudio_br.playbackRate = 1;
+                                    if (myAudio_am != null){
+                                        myAudio_am.playbackRate = 1;
+                                      }
                                     document.getElementById("speed{{question.id}}").value = 1;
                                     document.getElementById("speed{{question.id}}").innerHTML = "1";
                                 }
@@ -231,17 +259,35 @@
                         </td>
               {% if answer.audio %}
                         <td style ="min-width:140px">
-                            <audio id="myAudio-answer_{{answer.id}}">
+                            <audio id="myAudio-answer_{{answer.id}}_br">
                             <source src="{{ answer.audio.url }}" type="audio/wav">
                             <source src="{{ answer.audio.url }}" type="audio/mp3">
                             Your browser does not support the audio element.
                             </audio>
+                         {% if answer.audioa %}
+                             <audio id="myAudio-answer_{{answer.id}}_am">
+                            <source src="{{ answer.audioa.url }}" type="audio/wav">
+                            <source src="{{ answer.audioa.url }}" type="audio/mp3">
+                            Your browser does not support the audio element.
+                            </audio>
+                         {% endif %}
                             <div style="display:inline-block">
-                            <button type="button" style="background-image: url({% static 'toeic/images/playpause.png'%});background-size: 100%; height:25px; width:25px; background-color:transparent; border:none;vertical-align:bottom;" onclick="aud_play_pause_answer_{{answer.id}}()"></button>
+                            <button type="button" style="background-image: url({% static 'toeic/images/playpause.png'%});background-size: 100%; height:25px; width:25px; background-color:transparent; border:none;vertical-align:bottom;" onclick="aud_play_pause_answer_{{answer.id}}_br()"></button>
+                            <button type="button" style="background-image: url({% static 'toeic/images/american.png'%});background-size: 100%; height:25px; width:25px; background-color:transparent; border:none;vertical-align:bottom;" onclick="aud_play_pause_answer_{{answer.id}}_am()"></button>
+
                             <button type="button" value="1" id="speed_answer_{{answer.id}}" class="roundbutton" style="height:25px; width:25px; background-color:#1C268A; color:white;vertical-align:bottom;" onclick="changespeed_answer_{{answer.id}}()">1</button>
                             <script>
-                            function aud_play_pause_answer_{{answer.id}}() {
-                              var myAudio = document.getElementById("myAudio-answer_{{answer.id}}");
+                            function aud_play_pause_answer_{{answer.id}}_br() {
+                              var myAudio = document.getElementById("myAudio-answer_{{answer.id}}_br");
+                              if (myAudio.paused) {
+                                myAudio.play();
+                              } else {
+                                myAudio.pause();
+                              }
+                            };
+
+                             function aud_play_pause_answer_{{answer.id}}_am() {
+                              var myAudio = document.getElementById("myAudio-answer_{{answer.id}}_am");
                               if (myAudio.paused) {
                                 myAudio.play();
                               } else {
@@ -250,22 +296,32 @@
                             };
 
                             function changespeed_answer_{{answer.id}}(){
-                                var myAudio = document.getElementById("myAudio-answer_{{answer.id}}");
+                                var myAudio_br = document.getElementById("myAudio-answer_{{answer.id}}_br");
+                                var myAudio_am = document.getElementById("myAudio-answer_{{answer.id}}_am");
                                 currentspeed = document.getElementById("speed_answer_{{answer.id}}").value;
                                 if (currentspeed == "1")
                                 {
-                                    myAudio.playbackRate = 0.7;
+                                    myAudio_br.playbackRate = 0.7;
+                                     if (myAudio_am != null){
+                                        myAudio_am.playbackRate = 0.7;
+                                    }
                                     document.getElementById("speed_answer_{{answer.id}}").innerHTML = "0.7";
                                     document.getElementById("speed_answer_{{answer.id}}").value = 0.7;
                                 }
                                 else if (currentspeed == "0.7")
                                 {
-                                    myAudio.playbackRate = 0.5;
+                                    myAudio_br.playbackRate = 0.5;
+                                     if (myAudio_am != null){
+                                        myAudio_am.playbackRate = 0.5;
+                                    }
                                     document.getElementById("speed_answer_{{answer.id}}").value = 0.5;
                                     document.getElementById("speed_answer_{{answer.id}}").innerHTML = "0.5";
                                 }else
                                 {
-                                    myAudio.playbackRate = 1;
+                                    myAudio_br.playbackRate = 1;
+                                     if (myAudio_am != null){
+                                        myAudio_am.playbackRate = 1;
+                                    }
                                     document.getElementById("speed_answer_{{answer.id}}").value = 1;
                                     document.getElementById("speed_answer_{{answer.id}}").innerHTML = "1";
                                 }
